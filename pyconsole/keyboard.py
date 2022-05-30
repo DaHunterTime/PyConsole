@@ -64,7 +64,7 @@ class Keyboard:
 
         ## Attributes
 
-        next_num: int = the next available number for key registration. currently starts at 96.
+        next_num: int = the next available number for key registration. currently starts at 98.
 
         ## Instance
 
@@ -179,6 +179,8 @@ class Keyboard:
         * UNDERSCORE: '_' key
         * EQUALS: '=' key
         * PIPE: '|' key
+        * SPACE: spacebar key
+        * CTRL_C: the ctrl + c combination
         '''
         LEFT = 1
         RIGHT = 2
@@ -275,8 +277,10 @@ class Keyboard:
         UNDERSCORE = 93
         EQUALS = 94
         PIPE = 95
+        SPACE = 96
+        CTRL_C = 97
 
-        _next_num = 96
+        _next_num = 98
 
         @classmethod
         def register(cls, name: str):
@@ -414,7 +418,9 @@ class Keyboard:
             ";": Keyboard.Key.SEMI_COLON,
             "_": Keyboard.Key.UNDERSCORE,
             "=": Keyboard.Key.EQUALS,
-            "|": Keyboard.Key.PIPE
+            "|": Keyboard.Key.PIPE,
+            " ": Keyboard.Key.SPACE,
+            "\x03": Keyboard.Key.CTRL_C
         })
 
         if self.system == "Windows":

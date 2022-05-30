@@ -244,11 +244,16 @@ class Console:
         '''
         warn(message, category, stacklevel + 1, source)
 
-    def get_key(self) -> int:
+    def get_key(self, *, stop_exec: bool = True) -> int:
         '''
         Get a key press and return its integer representation.
 
         Check `Keyboard.Key` for more information.
+
+        ## Optional Keyword Arguments
+
+        stop_exec: bool = whether to raise KeyboardInterrupt when Ctrl+C is inputed or not. default
+        is True.
         '''
         key: str = getwch()
 
@@ -273,6 +278,9 @@ class Console:
             signal.signal(signal.SIGALRM, old_handle)
 
             return value
+        elif key == "\x03":
+            if stop_exec:
+                raise KeyboardInterrupt
 
         return self.keyboard.key_values[key]
 
@@ -323,7 +331,7 @@ class Console:
         '''
         self.cursor.move()
         empty = " " * self.size.columns * self.size.lines
-        print(empty)
+        print(empty, end="")
         self.cursor.move()
 
     def command(self, cmd: str) -> int:
