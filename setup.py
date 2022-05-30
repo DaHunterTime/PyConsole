@@ -6,7 +6,7 @@ with open("README.md", "r") as readme:
 
 setup(
     name="python-console",
-    version="1.3.0",
+    version="1.3.1",
     author="DaHunterTime",
     description="A (basic) cross-platform python console manager",
     long_description=description,

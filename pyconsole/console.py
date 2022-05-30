@@ -331,7 +331,12 @@ class Console:
         '''
         self.cursor.move()
         empty = " " * self.size.columns * self.size.lines
-        print(empty, end="")
+
+        if self.system == "Windows":
+            print(empty, end="", flush=True)
+        else:
+            print(empty, end="")
+
         self.cursor.move()
 
     def command(self, cmd: str) -> int:
