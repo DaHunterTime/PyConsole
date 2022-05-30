@@ -23,6 +23,11 @@ if platform.system() == "Windows":
 
     class _CursorInfo(ctypes.Structure):
         _fields_ = [("size", ctypes.c_int), ("visible", ctypes.c_byte)]
+
+    class _ConsoleInfo(ctypes.Structure):
+        _fields_ = [("size", ctypes.wintypes._COORD), ("cursor_pos", ctypes.wintypes._COORD),
+                    ("attributes", ctypes.wintypes.WORD), ("window", ctypes.wintypes.SMALL_RECT),
+                    ("max_size", ctypes.wintypes._COORD)]
 else:
     import signal
 
@@ -73,9 +78,13 @@ class Console:
             self._system: str = platform.system()
 
             if self.system == "Windows":
-                self._ci = _CursorInfo()
+                self._curi = _CursorInfo()
                 self._handle = ctypes.windll.kernel32.GetStdHandle(-11)
-                ctypes.windll.kernel32.GetConsoleCursorInfo(self._handle, ctypes.byref(self._ci))
+                ctypes.windll.kernel32.GetConsoleCursorInfo(self._handle, ctypes.byref(self._curi))
+
+                self._coni = _ConsoleInfo()
+                ctypes.windll.kernel32.GetConsoleScreenBufferInfo(self._handle,
+                                                                  ctypes.byref(self._coni))
 
         @property
         def system(self):
@@ -90,8 +99,8 @@ class Console:
             method.
             '''
             if self.system == "Windows":
-                self._ci.visible = False
-                ctypes.windll.kernel32.SetConsoleCursorInfo(self._handle, ctypes.byref(self._ci))
+                self._curi.visible = False
+                ctypes.windll.kernel32.SetConsoleCursorInfo(self._handle, ctypes.byref(self._curi))
             else:
                 print("\033[?25l", end="", flush=True)
 
@@ -100,8 +109,8 @@ class Console:
             Restores the cursor to its original visible state.
             '''
             if self.system == "Windows":
-                self._ci.visible = True
-                ctypes.windll.kernel32.SetConsoleCursorInfo(self._handle, ctypes.byref(self._ci))
+                self._curi.visible = True
+                ctypes.windll.kernel32.SetConsoleCursorInfo(self._handle, ctypes.byref(self._curi))
             else:
                 print("\033[?25h", end="", flush=True)
 
@@ -126,6 +135,17 @@ class Console:
                 self.restore()
 
             return value
+
+        def move(self, row: int = 1, column: int = 1):
+            '''
+            Moves the cursor position to the one specified by row and column. default is the top
+            left corner (1, 1).
+            '''
+            if self.system == "Windows":
+                new_pos = ctypes.wintypes._COORD(row - 1, column - 1)
+                ctypes.windll.kernel32.SetConsoleCursorPosition(self._handle, new_pos)
+            else:
+                print(f"\033[{row};{column}H", end="")
 
     def __init__(self, *, indent: int = 2, pass_prompt: str = "",
                  color_mode: ColorParser.DefaultType = SIMPLE):
@@ -297,19 +317,14 @@ class Console:
 
         return self.cursor.wrap(helper)
 
-    def clear(self) -> int:
+    def clear(self):
         '''
-        Clears the screen and returns the execution code. equivalent to `os.system('clear')` or
-        `os.system('cls')` depending of the system.
-
-        ## Returns
-
-        Returns the exit status
+        Clears the screen and moves the cursor to the top left corner.
         '''
-        if self.system == "Windows":
-            return os.system("cls")
-        else:
-            return os.system("clear")
+        self.cursor.move()
+        empty = " " * self.size.columns * self.size.lines
+        print(empty)
+        self.cursor.move()
 
     def command(self, cmd: str) -> int:
         '''

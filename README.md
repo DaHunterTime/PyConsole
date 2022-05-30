@@ -169,8 +169,6 @@ Print the terminal size and the OS name
 
 The cursor key can be used to modify some cursor properties.
 
-Currently, it can only hide or restore its visibility.
-
 It can be used like so:
 ```python
   import time
@@ -193,6 +191,15 @@ Or it can wrap around a function and restore its values in case of an error, lik
 
   console = Console()
   console.cursor.wrap(time.sleep, 5)
+```
+
+It can also be moved to any valid position on the screen using `move`
+```python
+  from pyconsole import Console
+
+
+  console = Console()
+  console.cursor.move(4, 1)  # 4th row, 1st column (starting from the 1st row and the 1st column)
 ```
 
 ### Keyboard
