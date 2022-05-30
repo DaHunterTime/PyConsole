@@ -120,6 +120,8 @@ The console methods are:
 * get_key
 * get_pass
 * print_traceback
+* clear
+* command
 
 Other useful attributes are:
 * system

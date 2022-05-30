@@ -41,7 +41,7 @@ class Console:
     pass_prompt: str = what to show after the normal prompt when asking for a password with the
     `getpass` method. default is "" (it is a key on a nerd font, if you can't see it then you don't
     have a compatible font installed and should probably change this value - or the font. for more
-    information visit: https://www.nerdfonts.com/).
+    information visit: (https://www.nerdfonts.com/).
 
     color_mode: ColorParser.DefaultType = the color mode that you want the console to be in. default
     is SIMPLE. (options are: SIMPLE or RGB).
@@ -296,6 +296,34 @@ class Console:
             return password
 
         return self.cursor.wrap(helper)
+
+    def clear(self) -> int:
+        '''
+        Clears the screen and returns the execution code. equivalent to `os.system('clear')` or
+        `os.system('cls')` depending of the system.
+
+        ## Returns
+
+        Returns the exit status
+        '''
+        if self.system == "Windows":
+            return os.system("cls")
+        else:
+            return os.system("clear")
+
+    def command(self, cmd: str) -> int:
+        '''
+        Executes a shell command and returns its exit code. equivalent to `os.system`.
+
+        ## Params
+
+        cmd: str = the command to execute
+
+        ## Returns
+
+        Returns the exit status
+        '''
+        return os.system(cmd)
 
     def __repr__(self) -> str:
         if self.color.type_ == SIMPLE:
