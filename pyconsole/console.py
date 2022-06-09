@@ -11,7 +11,7 @@ import sys
 from typing import Callable
 from warnings import warn
 
-from inputhandler import getwch
+from inputhandler import getwch, try_read
 
 from .color import Color, BLUE, RESET, YELLOW
 from .color_parser import ColorParser, SIMPLE, RGB
@@ -28,8 +28,6 @@ if platform.system() == "Windows":
         _fields_ = [("size", ctypes.wintypes._COORD), ("cursor_pos", ctypes.wintypes._COORD),
                     ("attributes", ctypes.wintypes.WORD), ("window", ctypes.wintypes.SMALL_RECT),
                     ("max_size", ctypes.wintypes._COORD)]
-else:
-    import signal
 
 
 class Console:
@@ -257,27 +255,9 @@ class Console:
         '''
         key: str = getwch()
 
-        if self.system == "Windows" and key == "\x00":
-            return self.keyboard.key_values[key][getwch()]
-        elif self.system != "Windows" and key == "\x1b":
-            def interrupt(signum, frame):
-                raise RuntimeError
-
-            def get_arrow():
-                try:
-                    old_values = signal.setitimer(signal.ITIMER_REAL, 0.01)
-                    getwch()
-                    char = getwch()
-                    signal.setitimer(signal.ITIMER_REAL, *old_values)
-                    return char
-                except RuntimeError:
-                    return
-
-            old_handle = signal.signal(signal.SIGALRM, interrupt)
-            value: Keyboard.Key = self.keyboard.key_values[key][get_arrow()]
-            signal.signal(signal.SIGALRM, old_handle)
-
-            return value
+        if ((self.system == "Windows" and key in {"\x00", "à"})
+           or (self.system != "Windows" and key == "\x1b")):
+            return self.keyboard.key_values[key][try_read()]
         elif key == "\x03":
             if stop_exec:
                 raise KeyboardInterrupt

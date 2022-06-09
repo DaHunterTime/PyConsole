@@ -6,7 +6,7 @@ with open("README.md", "r") as readme:
 
 setup(
     name="python-console",
-    version="1.3.1",
+    version="1.3.2",
     author="DaHunterTime",
     description="A (basic) cross-platform python console manager",
     long_description=description,
@@ -23,7 +23,7 @@ setup(
     ],
     packages=find_packages(),
     install_requires=[
-        "pyinputhandler >= 1.2.2"
+        "pyinputhandler >= 1.3.0"
     ],
     python_requires=">=3.8",
 )

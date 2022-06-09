@@ -424,25 +424,26 @@ class Keyboard:
         })
 
         if self.system == "Windows":
-            arrows = {
+            self._arrows = {
                 "K": Keyboard.Key.LEFT,
                 "M": Keyboard.Key.RIGHT,
                 "H": Keyboard.Key.UP,
                 "P": Keyboard.Key.DOWN
             }
 
-            self.key_values["\x00"] = defaultdict(key_error, arrows)
+            self.key_values["\x00"] = defaultdict(key_error, self._arrows)
+            self.key_values["à"] = defaultdict(key_error, self._arrows)
             self.key_values["\x1b"] = Keyboard.Key.ESC
             self.key_values["\x08"] = Keyboard.Key.DELETE
         else:
-            arrows = {
+            self._arrows = {
                 "D": Keyboard.Key.LEFT,
                 "C": Keyboard.Key.RIGHT,
                 "A": Keyboard.Key.UP,
                 "B": Keyboard.Key.DOWN
             }
 
-            self.key_values["\x1b"] = defaultdict(lambda: Keyboard.Key.ESC, arrows)
+            self.key_values["\x1b"] = defaultdict(lambda: Keyboard.Key.ESC, self._arrows)
             self.key_values["\x7f"] = Keyboard.Key.DELETE
 
     @property
@@ -473,4 +474,8 @@ class Keyboard:
         ```
         '''
         Keyboard.Key.register(name)
-        self.key_values[key] = Keyboard.Key.next_num - 1
+
+        if self.system == "Windows" and key == "à":
+            self.key_values[key] = defaultdict(lambda: getattr(Keyboard.Key, name), self._arrows)
+        else:
+            self.key_values[key] = Keyboard.Key.next_num - 1
